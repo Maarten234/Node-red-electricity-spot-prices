@@ -1,0 +1,626 @@
+[
+    {
+        "id": "6ab38a1f3f297bf9",
+        "type": "group",
+        "z": "34d2b246049c07ac",
+        "name": "Nord Pool",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "c51015459d7eb0d1",
+            "9a295adc27af298c",
+            "846d32a44ac0e6be",
+            "321abb9da7958664",
+            "e7ea362d31b9d3c5",
+            "a09c4a14fd7c1959",
+            "10c83364be03eabb",
+            "1e3a8816bf1b5a1f",
+            "d06e0b638b9b2392",
+            "89ab66105a0eafdd",
+            "f1198b857f54b582",
+            "21d93f1bf6dabd34",
+            "38414f08695127db",
+            "0bd46e6868ae057e",
+            "4aa0d9f6650f7532",
+            "46e331c2e59911c9"
+        ],
+        "x": 48,
+        "y": 1259,
+        "w": 1998,
+        "h": 382
+    },
+    {
+        "id": "c51015459d7eb0d1",
+        "type": "http request",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Fetch Energy Prices",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://dataportal-api.nordpoolgroup.com/api/DayAheadPriceIndices?date={{{date}}}&market=DayAhead&indexNames={{{country}}}&currency=EUR&resolutionInMinutes={{{resolution}}}",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 680,
+        "y": 1340,
+        "wires": [
+            [
+                "38414f08695127db"
+            ]
+        ]
+    },
+    {
+        "id": "9a295adc27af298c",
+        "type": "inject",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Fetch tomorrow prices",
+        "props": [
+            {
+                "p": "date",
+                "v": "$fromMillis($toMillis($now()) + 86400000, '[Y0001]-[M01]-[D01]')\t/*$substring(($now(), 0, 10)*/",
+                "vt": "jsonata"
+            }
+        ],
+        "repeat": "",
+        "crontab": "05 13 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 230,
+        "y": 1340,
+        "wires": [
+            [
+                "46e331c2e59911c9"
+            ]
+        ]
+    },
+    {
+        "id": "846d32a44ac0e6be",
+        "type": "json",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 1110,
+        "y": 1340,
+        "wires": [
+            [
+                "e7ea362d31b9d3c5"
+            ]
+        ]
+    },
+    {
+        "id": "321abb9da7958664",
+        "type": "comment",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Source",
+        "info": "The current api call seems to be a legacy api.\nhttps://data-api.nordpoolgroup.com/index.html",
+        "x": 150,
+        "y": 1300,
+        "wires": []
+    },
+    {
+        "id": "e7ea362d31b9d3c5",
+        "type": "switch",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Route by Topic",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "today",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 1260,
+        "y": 1340,
+        "wires": [
+            [
+                "ec6a6e024b4c3da7"
+            ],
+            [
+                "10c83364be03eabb"
+            ]
+        ],
+        "outputLabels": [
+            "Today",
+            "Tomorrow"
+        ]
+    },
+    {
+        "id": "a09c4a14fd7c1959",
+        "type": "function",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Analyze today Prices",
+        "func": "let sorted=msg.prices.map(entry => ({deliveryStart: entry.deliveryStart,\n                                  deliveryEnd: entry.deliveryEnd,\n                                  price: entry.entryPerArea[msg.country]\n                                })).sort((a, b) => a.price - b.price);\nmsg.cheapestHour=sorted[0];\nmsg.expensiveHours=sorted.slice(-msg.datapointsperday/2).sort((a, b) => new Date(a.deliveryStart) - new Date(b.deliveryStart));\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1580,
+        "y": 1600,
+        "wires": [
+            [
+                "1e3a8816bf1b5a1f"
+            ]
+        ]
+    },
+    {
+        "id": "10c83364be03eabb",
+        "type": "function",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Merge tomorrow prices",
+        "func": "msg.prices=msg.prices||global.get('energyprices').slice(-msg.datapointsperday);\nmsg.prices = [...msg.prices, ...msg.payload.multiIndexEntries];\n\nlet d=new Date();\nnode.status({text:d.toISOString().split('T')[0]+\" \"+d.toTimeString().split(\" \")[0]});\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1530,
+        "y": 1340,
+        "wires": [
+            [
+                "4aa0d9f6650f7532"
+            ]
+        ]
+    },
+    {
+        "id": "1e3a8816bf1b5a1f",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Save analysis to Global",
+        "rules": [
+            {
+                "t": "set",
+                "p": "cheapestHour",
+                "pt": "global",
+                "to": "cheapestHour",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "expensiveHours",
+                "pt": "global",
+                "to": "expensiveHours",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1830,
+        "y": 1600,
+        "wires": [
+            [
+                "05e9f81951b63418"
+            ]
+        ]
+    },
+    {
+        "id": "d06e0b638b9b2392",
+        "type": "debug",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "API call error",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1130,
+        "y": 1380,
+        "wires": []
+    },
+    {
+        "id": "89ab66105a0eafdd",
+        "type": "function",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Keep prices last 24h",
+        "func": "msg.prices=msg.prices.slice(-msg.datapointsperday);\nlet d=new Date();\nnode.status({text:d.toISOString().split('T')[0]+\" \"+d.toTimeString().split(\" \")[0]});\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1320,
+        "y": 1600,
+        "wires": [
+            [
+                "a09c4a14fd7c1959"
+            ]
+        ]
+    },
+    {
+        "id": "f1198b857f54b582",
+        "type": "inject",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Remove yesterday",
+        "props": [],
+        "repeat": "",
+        "crontab": "59 23 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 210,
+        "y": 1600,
+        "wires": [
+            [
+                "21d93f1bf6dabd34"
+            ]
+        ]
+    },
+    {
+        "id": "21d93f1bf6dabd34",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Get prices from Global",
+        "rules": [
+            {
+                "t": "set",
+                "p": "prices",
+                "pt": "msg",
+                "to": "energyprices",
+                "tot": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1080,
+        "y": 1600,
+        "wires": [
+            [
+                "89ab66105a0eafdd"
+            ]
+        ]
+    },
+    {
+        "id": "38414f08695127db",
+        "type": "switch",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Validate HTTP Status",
+        "property": "statusCode",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "200",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 900,
+        "y": 1340,
+        "wires": [
+            [
+                "846d32a44ac0e6be"
+            ],
+            [
+                "d06e0b638b9b2392"
+            ]
+        ],
+        "outputLabels": [
+            "sessionID obtained",
+            "error"
+        ],
+        "info": "When the envoy accepted the token it returns HTTP status code 200"
+    },
+    {
+        "id": "0bd46e6868ae057e",
+        "type": "group",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Initial call",
+        "style": {
+            "label": true,
+            "fill": "#ffffbf"
+        },
+        "nodes": [
+            "c24295b5dc001c36",
+            "ec6a6e024b4c3da7",
+            "a8cc5dfd89784f41",
+            "05e9f81951b63418",
+            "6c788958a1534bbe",
+            "248ffe6bfe566739"
+        ],
+        "x": 74,
+        "y": 1459,
+        "w": 1832,
+        "h": 82
+    },
+    {
+        "id": "c24295b5dc001c36",
+        "type": "inject",
+        "z": "34d2b246049c07ac",
+        "g": "0bd46e6868ae057e",
+        "name": "Init",
+        "props": [
+            {
+                "p": "date",
+                "v": "$fromMillis($toMillis($now()), '[Y0001]-[M01]-[D01]')",
+                "vt": "jsonata"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "today",
+        "x": 170,
+        "y": 1500,
+        "wires": [
+            [
+                "248ffe6bfe566739"
+            ]
+        ]
+    },
+    {
+        "id": "ec6a6e024b4c3da7",
+        "type": "function",
+        "z": "34d2b246049c07ac",
+        "g": "0bd46e6868ae057e",
+        "name": "set current time",
+        "func": "const d = new Date();\nlet now = new Date();\nlet hours = String(now.getHours()).padStart(2, '0');\nlet minutes = String(now.getMinutes()).padStart(2, '0');\nmsg.time = Number(hours + minutes);\nnode.status({text:d.toISOString().split('T')[0]+\" \"+d.toTimeString().split(\" \")[0]});\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1160,
+        "y": 1500,
+        "wires": [
+            [
+                "a8cc5dfd89784f41"
+            ]
+        ]
+    },
+    {
+        "id": "a8cc5dfd89784f41",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "0bd46e6868ae057e",
+        "name": "Save Today Prices",
+        "rules": [
+            {
+                "t": "set",
+                "p": "prices",
+                "pt": "msg",
+                "to": "payload.multiIndexEntries",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1350,
+        "y": 1500,
+        "wires": [
+            [
+                "a09c4a14fd7c1959"
+            ]
+        ]
+    },
+    {
+        "id": "05e9f81951b63418",
+        "type": "switch",
+        "z": "34d2b246049c07ac",
+        "g": "0bd46e6868ae057e",
+        "name": "Check Time",
+        "property": "time",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "1305",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 1590,
+        "y": 1500,
+        "wires": [
+            [
+                "4aa0d9f6650f7532"
+            ],
+            [
+                "6c788958a1534bbe"
+            ]
+        ],
+        "outputLabels": [
+            "only today available",
+            "tomorrow available"
+        ]
+    },
+    {
+        "id": "6c788958a1534bbe",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "0bd46e6868ae057e",
+        "name": "Set Tomorrow Date",
+        "rules": [
+            {
+                "t": "set",
+                "p": "date",
+                "pt": "msg",
+                "to": "$fromMillis($toMillis($now()) + 86400000, '[Y0001]-[M01]-[D01]')\t",
+                "tot": "jsonata"
+            },
+            {
+                "t": "delete",
+                "p": "topic",
+                "pt": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1790,
+        "y": 1500,
+        "wires": [
+            [
+                "46e331c2e59911c9"
+            ]
+        ]
+    },
+    {
+        "id": "248ffe6bfe566739",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "0bd46e6868ae057e",
+        "name": "Set Nord Pool parameters",
+        "rules": [
+            {
+                "t": "set",
+                "p": "country",
+                "pt": "flow",
+                "to": "NL",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "resolution",
+                "pt": "flow",
+                "to": "60",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 370,
+        "y": 1500,
+        "wires": [
+            [
+                "46e331c2e59911c9"
+            ]
+        ],
+        "icon": "node-red/alert.svg",
+        "info": "# Country\nThis parameter stores the country index and could be any of the following:\nEE,LT,LV,AT,BE,FR,GER,NL,PL,DK1,DK2,FI,NO1,NO2,NO3,NO4,NO5,SE1,SE2,SE3,SE4,BG,TEL\n# Resolution\nThis indicates the validity in minutes of the price. And could be any of the following:\n15, 30, 60 "
+    },
+    {
+        "id": "4aa0d9f6650f7532",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Save prices to Global",
+        "rules": [
+            {
+                "t": "set",
+                "p": "energyprices",
+                "pt": "global",
+                "to": "prices",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1920,
+        "y": 1340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "46e331c2e59911c9",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "country",
+                "pt": "msg",
+                "to": "country",
+                "tot": "flow"
+            },
+            {
+                "t": "set",
+                "p": "resolution",
+                "pt": "msg",
+                "to": "resolution",
+                "tot": "flow"
+            },
+            {
+                "t": "set",
+                "p": "datapointsperday",
+                "pt": "msg",
+                "to": "24 * 60 / $number(resolution)",
+                "tot": "jsonata"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 460,
+        "y": 1340,
+        "wires": [
+            [
+                "c51015459d7eb0d1"
+            ]
+        ],
+        "info": "# Country\nThis parameter stores the country index and could be any of the following:\nEE,LT,LV,AT,BE,FR,GER,NL,PL,DK1,DK2,FI,NO1,NO2,NO3,NO4,NO5,SE1,SE2,SE3,SE4,BG,TEL\n# Resolution\nThis indicates the validity in minutes of the price. And could be any of the following:\n15, 30, 60 "
+    }
+]
