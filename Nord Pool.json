@@ -64,7 +64,7 @@
         "props": [
             {
                 "p": "date",
-                "v": "$fromMillis($toMillis($now()) + 86400000, '[Y0001]-[M01]-[D01]')\t/*$substring(($now(), 0, 10)*/",
+                "v": "$fromMillis($toMillis($now()) + 86400000, '[Y0001]-[M01]-[D01]')\t",
                 "vt": "jsonata"
             }
         ],
