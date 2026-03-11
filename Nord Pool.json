@@ -246,7 +246,7 @@
         "z": "34d2b246049c07ac",
         "g": "6ab38a1f3f297bf9",
         "name": "Keep prices last 24h",
-        "func": "msg.prices=msg.prices.slice(-msg.datapointsperday);\nlet d=new Date();\nnode.status({text:d.toISOString().split('T')[0]+\" \"+d.toTimeString().split(\" \")[0]});\n\nreturn msg;",
+        "func": "let datapointsperday= 24 * 60 / flow.get('resolution');\nmsg.prices=msg.prices.slice(-datapointsperday);\nlet d=new Date();\nnode.status({text:d.toISOString().split('T')[0]+\" \"+d.toTimeString().split(\" \")[0]});\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
