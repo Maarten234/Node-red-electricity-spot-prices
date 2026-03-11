@@ -19,16 +19,19 @@
             "d06e0b638b9b2392",
             "89ab66105a0eafdd",
             "f1198b857f54b582",
-            "21d93f1bf6dabd34",
             "38414f08695127db",
-            "0bd46e6868ae057e",
             "4aa0d9f6650f7532",
-            "46e331c2e59911c9"
+            "66d791f7a138bc4a",
+            "14f55cdf0a159003",
+            "44ea09094e30fcb5",
+            "46e331c2e59911c9",
+            "f19ead96ecf99ea7",
+            "cdd32a13985f31d9"
         ],
-        "x": 48,
-        "y": 1259,
-        "w": 1998,
-        "h": 382
+        "x": 68,
+        "y": 859,
+        "w": 2378,
+        "h": 402
     },
     {
         "id": "c51015459d7eb0d1",
@@ -47,8 +50,8 @@
         "authType": "",
         "senderr": false,
         "headers": [],
-        "x": 680,
-        "y": 1340,
+        "x": 1160,
+        "y": 940,
         "wires": [
             [
                 "38414f08695127db"
@@ -64,17 +67,21 @@
         "props": [
             {
                 "p": "date",
-                "v": "$fromMillis($toMillis($now()) + 86400000, '[Y0001]-[M01]-[D01]')\t",
+                "v": "$fromMillis($toMillis($now()) + 86400000, '[Y0001]-[M01]-[D01]')",
                 "vt": "jsonata"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
             }
         ],
         "repeat": "",
         "crontab": "05 13 * * *",
         "once": false,
         "onceDelay": 0.1,
-        "topic": "",
-        "x": 230,
-        "y": 1340,
+        "topic": "tomorrow",
+        "x": 250,
+        "y": 940,
         "wires": [
             [
                 "46e331c2e59911c9"
@@ -90,8 +97,8 @@
         "property": "payload",
         "action": "",
         "pretty": false,
-        "x": 1110,
-        "y": 1340,
+        "x": 1590,
+        "y": 940,
         "wires": [
             [
                 "e7ea362d31b9d3c5"
@@ -105,8 +112,8 @@
         "g": "6ab38a1f3f297bf9",
         "name": "Source",
         "info": "The current api call seems to be a legacy api.\nhttps://data-api.nordpoolgroup.com/index.html",
-        "x": 150,
-        "y": 1300,
+        "x": 170,
+        "y": 900,
         "wires": []
     },
     {
@@ -120,29 +127,31 @@
         "rules": [
             {
                 "t": "eq",
-                "v": "today",
+                "v": "tomorrow",
                 "vt": "str"
             },
             {
-                "t": "else"
+                "t": "eq",
+                "v": "today",
+                "vt": "str"
             }
         ],
         "checkall": "false",
         "repair": false,
         "outputs": 2,
-        "x": 1260,
-        "y": 1340,
+        "x": 1740,
+        "y": 940,
         "wires": [
             [
-                "ec6a6e024b4c3da7"
+                "10c83364be03eabb"
             ],
             [
-                "10c83364be03eabb"
+                "a8cc5dfd89784f41"
             ]
         ],
         "outputLabels": [
-            "Today",
-            "Tomorrow"
+            "Tomorrow",
+            "Today"
         ]
     },
     {
@@ -158,8 +167,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1580,
-        "y": 1600,
+        "x": 1440,
+        "y": 1220,
         "wires": [
             [
                 "1e3a8816bf1b5a1f"
@@ -179,8 +188,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1530,
-        "y": 1340,
+        "x": 2010,
+        "y": 940,
         "wires": [
             [
                 "4aa0d9f6650f7532"
@@ -214,11 +223,11 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1830,
-        "y": 1600,
+        "x": 1690,
+        "y": 1220,
         "wires": [
             [
-                "05e9f81951b63418"
+                "66d791f7a138bc4a"
             ]
         ]
     },
@@ -236,8 +245,8 @@
         "targetType": "full",
         "statusVal": "",
         "statusType": "auto",
-        "x": 1130,
-        "y": 1380,
+        "x": 1610,
+        "y": 900,
         "wires": []
     },
     {
@@ -246,15 +255,15 @@
         "z": "34d2b246049c07ac",
         "g": "6ab38a1f3f297bf9",
         "name": "Keep prices last 24h",
-        "func": "let datapointsperday= 24 * 60 / flow.get('resolution');\nmsg.prices=msg.prices.slice(-datapointsperday);\nlet d=new Date();\nnode.status({text:d.toISOString().split('T')[0]+\" \"+d.toTimeString().split(\" \")[0]});\n\nreturn msg;",
+        "func": "msg.prices=msg.prices.slice(-msg.datapointsperday);\nlet d=new Date();\nnode.status({text:d.toISOString().split('T')[0]+\" \"+d.toTimeString().split(\" \")[0]});\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 1320,
-        "y": 1600,
+        "x": 1180,
+        "y": 1220,
         "wires": [
             [
                 "a09c4a14fd7c1959"
@@ -267,45 +276,22 @@
         "z": "34d2b246049c07ac",
         "g": "6ab38a1f3f297bf9",
         "name": "Remove yesterday",
-        "props": [],
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
         "repeat": "",
         "crontab": "59 23 * * *",
         "once": false,
         "onceDelay": 0.1,
-        "topic": "",
-        "x": 210,
-        "y": 1600,
+        "topic": "remove",
+        "x": 230,
+        "y": 1220,
         "wires": [
             [
-                "21d93f1bf6dabd34"
-            ]
-        ]
-    },
-    {
-        "id": "21d93f1bf6dabd34",
-        "type": "change",
-        "z": "34d2b246049c07ac",
-        "g": "6ab38a1f3f297bf9",
-        "name": "Get prices from Global",
-        "rules": [
-            {
-                "t": "set",
-                "p": "prices",
-                "pt": "msg",
-                "to": "energyprices",
-                "tot": "global"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 1080,
-        "y": 1600,
-        "wires": [
-            [
-                "89ab66105a0eafdd"
+                "14f55cdf0a159003"
             ]
         ]
     },
@@ -319,7 +305,7 @@
         "propertyType": "msg",
         "rules": [
             {
-                "t": "eq",
+                "t": "neq",
                 "v": "200",
                 "vt": "str"
             },
@@ -330,229 +316,21 @@
         "checkall": "true",
         "repair": false,
         "outputs": 2,
-        "x": 900,
-        "y": 1340,
+        "x": 1380,
+        "y": 940,
         "wires": [
-            [
-                "846d32a44ac0e6be"
-            ],
             [
                 "d06e0b638b9b2392"
-            ]
-        ],
-        "outputLabels": [
-            "sessionID obtained",
-            "error"
-        ],
-        "info": "When the envoy accepted the token it returns HTTP status code 200"
-    },
-    {
-        "id": "0bd46e6868ae057e",
-        "type": "group",
-        "z": "34d2b246049c07ac",
-        "g": "6ab38a1f3f297bf9",
-        "name": "Initial call",
-        "style": {
-            "label": true,
-            "fill": "#ffffbf"
-        },
-        "nodes": [
-            "c24295b5dc001c36",
-            "ec6a6e024b4c3da7",
-            "a8cc5dfd89784f41",
-            "05e9f81951b63418",
-            "6c788958a1534bbe",
-            "248ffe6bfe566739"
-        ],
-        "x": 74,
-        "y": 1459,
-        "w": 1832,
-        "h": 82
-    },
-    {
-        "id": "c24295b5dc001c36",
-        "type": "inject",
-        "z": "34d2b246049c07ac",
-        "g": "0bd46e6868ae057e",
-        "name": "Init",
-        "props": [
-            {
-                "p": "date",
-                "v": "$fromMillis($toMillis($now()), '[Y0001]-[M01]-[D01]')",
-                "vt": "jsonata"
-            },
-            {
-                "p": "topic",
-                "vt": "str"
-            }
-        ],
-        "repeat": "",
-        "crontab": "",
-        "once": true,
-        "onceDelay": 0.1,
-        "topic": "today",
-        "x": 170,
-        "y": 1500,
-        "wires": [
-            [
-                "248ffe6bfe566739"
-            ]
-        ]
-    },
-    {
-        "id": "ec6a6e024b4c3da7",
-        "type": "function",
-        "z": "34d2b246049c07ac",
-        "g": "0bd46e6868ae057e",
-        "name": "set current time",
-        "func": "const d = new Date();\nlet now = new Date();\nlet hours = String(now.getHours()).padStart(2, '0');\nlet minutes = String(now.getMinutes()).padStart(2, '0');\nmsg.time = Number(hours + minutes);\nnode.status({text:d.toISOString().split('T')[0]+\" \"+d.toTimeString().split(\" \")[0]});\n\nreturn msg;",
-        "outputs": 1,
-        "timeout": 0,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 1160,
-        "y": 1500,
-        "wires": [
-            [
-                "a8cc5dfd89784f41"
-            ]
-        ]
-    },
-    {
-        "id": "a8cc5dfd89784f41",
-        "type": "change",
-        "z": "34d2b246049c07ac",
-        "g": "0bd46e6868ae057e",
-        "name": "Save Today Prices",
-        "rules": [
-            {
-                "t": "set",
-                "p": "prices",
-                "pt": "msg",
-                "to": "payload.multiIndexEntries",
-                "tot": "msg"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 1350,
-        "y": 1500,
-        "wires": [
-            [
-                "a09c4a14fd7c1959"
-            ]
-        ]
-    },
-    {
-        "id": "05e9f81951b63418",
-        "type": "switch",
-        "z": "34d2b246049c07ac",
-        "g": "0bd46e6868ae057e",
-        "name": "Check Time",
-        "property": "time",
-        "propertyType": "msg",
-        "rules": [
-            {
-                "t": "lt",
-                "v": "1305",
-                "vt": "num"
-            },
-            {
-                "t": "else"
-            }
-        ],
-        "checkall": "false",
-        "repair": false,
-        "outputs": 2,
-        "x": 1590,
-        "y": 1500,
-        "wires": [
-            [
-                "4aa0d9f6650f7532"
             ],
             [
-                "6c788958a1534bbe"
+                "846d32a44ac0e6be"
             ]
         ],
         "outputLabels": [
-            "only today available",
-            "tomorrow available"
-        ]
-    },
-    {
-        "id": "6c788958a1534bbe",
-        "type": "change",
-        "z": "34d2b246049c07ac",
-        "g": "0bd46e6868ae057e",
-        "name": "Set Tomorrow Date",
-        "rules": [
-            {
-                "t": "set",
-                "p": "date",
-                "pt": "msg",
-                "to": "$fromMillis($toMillis($now()) + 86400000, '[Y0001]-[M01]-[D01]')\t",
-                "tot": "jsonata"
-            },
-            {
-                "t": "delete",
-                "p": "topic",
-                "pt": "msg"
-            }
+            "error",
+            "api call successful"
         ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 1790,
-        "y": 1500,
-        "wires": [
-            [
-                "46e331c2e59911c9"
-            ]
-        ]
-    },
-    {
-        "id": "248ffe6bfe566739",
-        "type": "change",
-        "z": "34d2b246049c07ac",
-        "g": "0bd46e6868ae057e",
-        "name": "Set Nord Pool parameters",
-        "rules": [
-            {
-                "t": "set",
-                "p": "country",
-                "pt": "flow",
-                "to": "NL",
-                "tot": "str"
-            },
-            {
-                "t": "set",
-                "p": "resolution",
-                "pt": "flow",
-                "to": "60",
-                "tot": "str"
-            }
-        ],
-        "action": "",
-        "property": "",
-        "from": "",
-        "to": "",
-        "reg": false,
-        "x": 370,
-        "y": 1500,
-        "wires": [
-            [
-                "46e331c2e59911c9"
-            ]
-        ],
-        "icon": "node-red/alert.svg",
-        "info": "# Country\nThis parameter stores the country index and could be any of the following:\nEE,LT,LV,AT,BE,FR,GER,NL,PL,DK1,DK2,FI,NO1,NO2,NO3,NO4,NO5,SE1,SE2,SE3,SE4,BG,TEL\n# Resolution\nThis indicates the validity in minutes of the price. And could be any of the following:\n15, 30, 60 "
+        "info": "When the envoy accepted the token it returns HTTP status code 200"
     },
     {
         "id": "4aa0d9f6650f7532",
@@ -574,10 +352,110 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1920,
-        "y": 1340,
+        "x": 2320,
+        "y": 940,
         "wires": [
             []
+        ]
+    },
+    {
+        "id": "66d791f7a138bc4a",
+        "type": "switch",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Route by Topic",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "today",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 1920,
+        "y": 1220,
+        "wires": [
+            [
+                "ec6a6e024b4c3da7"
+            ],
+            [
+                "4aa0d9f6650f7532"
+            ]
+        ],
+        "outputLabels": [
+            "Today",
+            "Tomorrow"
+        ]
+    },
+    {
+        "id": "14f55cdf0a159003",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Get prices",
+        "rules": [
+            {
+                "t": "set",
+                "p": "prices",
+                "pt": "msg",
+                "to": "energyprices",
+                "tot": "global"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 410,
+        "y": 1220,
+        "wires": [
+            [
+                "46e331c2e59911c9"
+            ]
+        ]
+    },
+    {
+        "id": "44ea09094e30fcb5",
+        "type": "switch",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Route by Topic",
+        "property": "topic",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "neq",
+                "v": "remove",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 920,
+        "y": 1100,
+        "wires": [
+            [
+                "c51015459d7eb0d1"
+            ],
+            [
+                "89ab66105a0eafdd"
+            ]
+        ],
+        "outputLabels": [
+            "Today",
+            "Tomorrow"
         ]
     },
     {
@@ -585,7 +463,7 @@
         "type": "change",
         "z": "34d2b246049c07ac",
         "g": "6ab38a1f3f297bf9",
-        "name": "",
+        "name": "Get context parameters",
         "rules": [
             {
                 "t": "set",
@@ -614,13 +492,240 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 460,
-        "y": 1340,
+        "x": 710,
+        "y": 1100,
+        "wires": [
+            [
+                "44ea09094e30fcb5"
+            ]
+        ],
+        "info": "# Country\nThis parameter stores the country index and could be any of the following:\nEE,LT,LV,AT,BE,FR,GER,NL,PL,DK1,DK2,FI,NO1,NO2,NO3,NO4,NO5,SE1,SE2,SE3,SE4,BG,TEL\n# Resolution\nThis indicates the validity in minutes of the price. And could be any of the following:\n15, 30, 60 "
+    },
+    {
+        "id": "f19ead96ecf99ea7",
+        "type": "group",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "initial call",
+        "style": {
+            "fill": "#ffffbf",
+            "label": true
+        },
+        "nodes": [
+            "248ffe6bfe566739",
+            "c24295b5dc001c36"
+        ],
+        "x": 94,
+        "y": 1059,
+        "w": 432,
+        "h": 82
+    },
+    {
+        "id": "248ffe6bfe566739",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "f19ead96ecf99ea7",
+        "name": "Set Nord Pool parameters",
+        "rules": [
+            {
+                "t": "set",
+                "p": "country",
+                "pt": "flow",
+                "to": "NL",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "resolution",
+                "pt": "flow",
+                "to": "60",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 390,
+        "y": 1100,
+        "wires": [
+            [
+                "46e331c2e59911c9"
+            ]
+        ],
+        "icon": "node-red/alert.svg",
+        "info": "# Country\nThis parameter stores the country index and could be any of the following:\nEE,LT,LV,AT,BE,FR,GER,NL,PL,DK1,DK2,FI,NO1,NO2,NO3,NO4,NO5,SE1,SE2,SE3,SE4,BG,TEL\n# Resolution\nThis indicates the validity in minutes of the price. And could be any of the following:\n15, 30, 60 "
+    },
+    {
+        "id": "c24295b5dc001c36",
+        "type": "inject",
+        "z": "34d2b246049c07ac",
+        "g": "f19ead96ecf99ea7",
+        "name": "Init",
+        "props": [
+            {
+                "p": "date",
+                "v": "$fromMillis($toMillis($now()), '[Y0001]-[M01]-[D01]')",
+                "vt": "jsonata"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "today",
+        "x": 190,
+        "y": 1100,
+        "wires": [
+            [
+                "248ffe6bfe566739"
+            ]
+        ]
+    },
+    {
+        "id": "cdd32a13985f31d9",
+        "type": "group",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "initial call",
+        "style": {
+            "fill": "#ffffbf",
+            "label": true
+        },
+        "nodes": [
+            "a8cc5dfd89784f41",
+            "05e9f81951b63418",
+            "6c788958a1534bbe",
+            "ec6a6e024b4c3da7"
+        ],
+        "x": 1134,
+        "y": 1059,
+        "w": 872,
+        "h": 82
+    },
+    {
+        "id": "a8cc5dfd89784f41",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "cdd32a13985f31d9",
+        "name": "Save Today Prices",
+        "rules": [
+            {
+                "t": "set",
+                "p": "prices",
+                "pt": "msg",
+                "to": "payload.multiIndexEntries",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1250,
+        "y": 1100,
+        "wires": [
+            [
+                "a09c4a14fd7c1959"
+            ]
+        ]
+    },
+    {
+        "id": "05e9f81951b63418",
+        "type": "switch",
+        "z": "34d2b246049c07ac",
+        "g": "cdd32a13985f31d9",
+        "name": "Check Time",
+        "property": "time",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lt",
+                "v": "1305",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "repair": false,
+        "outputs": 2,
+        "x": 1690,
+        "y": 1100,
+        "wires": [
+            [
+                "4aa0d9f6650f7532"
+            ],
+            [
+                "6c788958a1534bbe"
+            ]
+        ],
+        "outputLabels": [
+            "only today available",
+            "tomorrow available"
+        ]
+    },
+    {
+        "id": "6c788958a1534bbe",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "cdd32a13985f31d9",
+        "name": "Set Tomorrow Date",
+        "rules": [
+            {
+                "t": "set",
+                "p": "date",
+                "pt": "msg",
+                "to": "$fromMillis($toMillis($now()) + 86400000, '[Y0001]-[M01]-[D01]')\t",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "topic",
+                "pt": "msg",
+                "to": "tomorrow",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1890,
+        "y": 1100,
         "wires": [
             [
                 "c51015459d7eb0d1"
             ]
-        ],
-        "info": "# Country\nThis parameter stores the country index and could be any of the following:\nEE,LT,LV,AT,BE,FR,GER,NL,PL,DK1,DK2,FI,NO1,NO2,NO3,NO4,NO5,SE1,SE2,SE3,SE4,BG,TEL\n# Resolution\nThis indicates the validity in minutes of the price. And could be any of the following:\n15, 30, 60 "
+        ]
+    },
+    {
+        "id": "ec6a6e024b4c3da7",
+        "type": "function",
+        "z": "34d2b246049c07ac",
+        "g": "cdd32a13985f31d9",
+        "name": "set current time",
+        "func": "const d = new Date();\nlet now = new Date();\nlet hours = String(now.getHours()).padStart(2, '0');\nlet minutes = String(now.getMinutes()).padStart(2, '0');\nmsg.time = Number(hours + minutes);\nnode.status({text:d.toISOString().split('T')[0]+\" \"+d.toTimeString().split(\" \")[0]});\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1500,
+        "y": 1100,
+        "wires": [
+            [
+                "05e9f81951b63418"
+            ]
+        ]
     }
 ]
