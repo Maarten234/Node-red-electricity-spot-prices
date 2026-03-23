@@ -1,5 +1,13 @@
 # energy spot prices
 If you want to make smart decisions regarding electricity prices one needs to know the actual electricity price.
+
+## Nord Pool
+The Nord Pool flow fetches the electricity price for today and tomorrow. Additionally, it identifies the 50% most expensive timeslots for today as well as the cheapest timeslot of the day. All being saved as global context variables.
+
+Before starting, update the "Set Nord Pool parameters" node. This node contains the area of interest and the duration of timeslots (15, 30, or 60 minutes). The area of interest can be any of the following:
+EE,LT,LV,AT,BE,FR,GER,NL,PL,DK1,DK2,FI,NO1,NO2,NO3,NO4,NO5,SE1,SE2,SE3,SE4,BG,TEL
+![Nord Pool flow](/images/Nord%20Pool.gif)
+
 ## EPEX Energy price 
 Plain energy prices from EPEX can be obtained via [energy-charts.info](https://energy-charts.info) in EUR/MWh
 
@@ -35,10 +43,3 @@ Even though EPEX prices changes every 15min, Frank energie applies hourly prices
 Frank energie has a GraphQL api available, more details can be found through this link: [https://reversed.notion.site/Marktprijzen-API-89ce600a88ac4abe8c2ad89d3167a83e](https://reversed.notion.site/Marktprijzen-API-89ce600a88ac4abe8c2ad89d3167a83e) 
 Node-red flow to request the day ahead price for Frank energie.
 ![Frank energie flow](/images/Frank%20energie.gif)
-
-## Nord Pool
-The Nord Pool flow fetches the electricity price for today and tomorrow. Additionally, it identifies the 50% most expensive timeslots for today as well as the cheapest timeslot of the day.
-
-Before starting, update the "Set Nord Pool parameters" node. This node contains the area of interest and the duration of timeslots (15, 30, or 60 minutes). The area of interest can be any of the following:
-EE,LT,LV,AT,BE,FR,GER,NL,PL,DK1,DK2,FI,NO1,NO2,NO3,NO4,NO5,SE1,SE2,SE3,SE4,BG,TEL
-![Nord Pool flow](/images/Nord%20Pool.gif)
