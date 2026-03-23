@@ -26,12 +26,16 @@
             "44ea09094e30fcb5",
             "46e331c2e59911c9",
             "f19ead96ecf99ea7",
-            "cdd32a13985f31d9"
+            "cdd32a13985f31d9",
+            "95e559bdbc1d8d5f",
+            "c15d862e69790112",
+            "ba695371da52cf69",
+            "a5962aa98edceb8b"
         ],
         "x": 68,
         "y": 859,
-        "w": 2378,
-        "h": 402
+        "w": 2738,
+        "h": 462
     },
     {
         "id": "c51015459d7eb0d1",
@@ -101,7 +105,7 @@
         "y": 940,
         "wires": [
             [
-                "e7ea362d31b9d3c5"
+                "95e559bdbc1d8d5f"
             ]
         ]
     },
@@ -139,7 +143,7 @@
         "checkall": "false",
         "repair": false,
         "outputs": 2,
-        "x": 1740,
+        "x": 2120,
         "y": 940,
         "wires": [
             [
@@ -188,7 +192,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 2010,
+        "x": 2370,
         "y": 940,
         "wires": [
             [
@@ -352,7 +356,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 2320,
+        "x": 2680,
         "y": 940,
         "wires": [
             []
@@ -386,7 +390,7 @@
                 "ec6a6e024b4c3da7"
             ],
             [
-                "4aa0d9f6650f7532"
+                "c15d862e69790112"
             ]
         ],
         "outputLabels": [
@@ -450,7 +454,7 @@
                 "c51015459d7eb0d1"
             ],
             [
-                "89ab66105a0eafdd"
+                "ba695371da52cf69"
             ]
         ],
         "outputLabels": [
@@ -604,9 +608,9 @@
             "ec6a6e024b4c3da7"
         ],
         "x": 1134,
-        "y": 1059,
-        "w": 872,
-        "h": 82
+        "y": 1039,
+        "w": 892,
+        "h": 102
     },
     {
         "id": "a8cc5dfd89784f41",
@@ -646,7 +650,7 @@
         "propertyType": "msg",
         "rules": [
             {
-                "t": "lt",
+                "t": "gte",
                 "v": "1305",
                 "vt": "num"
             },
@@ -661,15 +665,15 @@
         "y": 1100,
         "wires": [
             [
-                "4aa0d9f6650f7532"
+                "6c788958a1534bbe"
             ],
             [
-                "6c788958a1534bbe"
+                "c15d862e69790112"
             ]
         ],
         "outputLabels": [
-            "only today available",
-            "tomorrow available"
+            "tomorrow available",
+            "only today available"
         ]
     },
     {
@@ -699,8 +703,8 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 1890,
-        "y": 1100,
+        "x": 1910,
+        "y": 1080,
         "wires": [
             [
                 "c51015459d7eb0d1"
@@ -725,6 +729,119 @@
         "wires": [
             [
                 "05e9f81951b63418"
+            ]
+        ]
+    },
+    {
+        "id": "95e559bdbc1d8d5f",
+        "type": "switch",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Continue if \"multiIndexEntries\" key is present",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "hask",
+                "v": "multiIndexEntries",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 1850,
+        "y": 940,
+        "wires": [
+            [
+                "e7ea362d31b9d3c5"
+            ]
+        ]
+    },
+    {
+        "id": "c15d862e69790112",
+        "type": "junction",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "x": 2100,
+        "y": 1160,
+        "wires": [
+            [
+                "4aa0d9f6650f7532"
+            ]
+        ]
+    },
+    {
+        "id": "ba695371da52cf69",
+        "type": "switch",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Data of tomorrow available",
+        "property": "prices.length",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "datapointsperday",
+                "vt": "msg"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 920,
+        "y": 1260,
+        "wires": [
+            [
+                "89ab66105a0eafdd"
+            ],
+            [
+                "a5962aa98edceb8b"
+            ]
+        ]
+    },
+    {
+        "id": "a5962aa98edceb8b",
+        "type": "change",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Set no data",
+        "rules": [
+            {
+                "t": "set",
+                "p": "cheapestHour",
+                "pt": "msg",
+                "to": "",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "expensiveHours",
+                "pt": "msg",
+                "to": "[]",
+                "tot": "json"
+            },
+            {
+                "t": "set",
+                "p": "prices",
+                "pt": "msg",
+                "to": "[]",
+                "tot": "json"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 1150,
+        "y": 1280,
+        "wires": [
+            [
+                "1e3a8816bf1b5a1f"
             ]
         ]
     }
