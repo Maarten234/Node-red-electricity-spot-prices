@@ -30,12 +30,14 @@
             "95e559bdbc1d8d5f",
             "c15d862e69790112",
             "ba695371da52cf69",
-            "a5962aa98edceb8b"
+            "a5962aa98edceb8b",
+            "ad6bebef09a61e58",
+            "086bb94aad456806"
         ],
         "x": 68,
-        "y": 859,
-        "w": 2738,
-        "h": 462
+        "y": 759,
+        "w": 2858,
+        "h": 562
     },
     {
         "id": "c51015459d7eb0d1",
@@ -147,7 +149,7 @@
         "y": 940,
         "wires": [
             [
-                "10c83364be03eabb"
+                "ad6bebef09a61e58"
             ],
             [
                 "a8cc5dfd89784f41"
@@ -192,7 +194,7 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 2370,
+        "x": 2530,
         "y": 940,
         "wires": [
             [
@@ -356,7 +358,7 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 2680,
+        "x": 2800,
         "y": 940,
         "wires": [
             []
@@ -842,6 +844,64 @@
         "wires": [
             [
                 "1e3a8816bf1b5a1f"
+            ]
+        ]
+    },
+    {
+        "id": "ad6bebef09a61e58",
+        "type": "switch",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "",
+        "property": "$count(msg.payload.multiIndexEntries)\t",
+        "propertyType": "jsonata",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "0",
+                "vt": "num"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 2310,
+        "y": 940,
+        "wires": [
+            [
+                "086bb94aad456806"
+            ],
+            [
+                "10c83364be03eabb"
+            ]
+        ]
+    },
+    {
+        "id": "086bb94aad456806",
+        "type": "delay",
+        "z": "34d2b246049c07ac",
+        "g": "6ab38a1f3f297bf9",
+        "name": "Retry after 30min for max 3times a day",
+        "pauseType": "rate",
+        "timeout": "30",
+        "timeoutUnits": "minutes",
+        "rate": "3",
+        "nbRateUnits": "3",
+        "rateUnits": "hour",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1770,
+        "y": 800,
+        "wires": [
+            [
+                "c51015459d7eb0d1"
             ]
         ]
     }
